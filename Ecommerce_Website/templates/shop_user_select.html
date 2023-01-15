@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% block content %}
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+<body>
+	<form action="/shop_user_select/" method="post">
+	<label>Select user to continue:</label><br>
+	<select name="user_select">
+		{% for user in content %}
+			<option value="{{user[0]}}">{{user[1]}}</option>
+		{% endfor %}
+		<input type="submit">
+	</select>
+	</form>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% block content %}
+<form action="/user_controller/update_user/{{content[0]}}" method="post">
+  <label>First name:</label>
+  <input name="first_name" value="{{content[1]}}"><br><br>
+  <label>Last Name:</label>
+  <input name="last_name" value="{{content[2]}}"><br><br>
+  <label>Add balance:</label>
+  <input name="balance" type="number">$<br><br>
+  <button>Submit</button>
+</form>
+{% endblock %}

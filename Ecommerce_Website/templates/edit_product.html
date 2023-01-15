@@ -1,0 +1,12 @@
+{% block content %}
+<form action="/product_controller/update_product/{{content[0]}}" method="post">
+	<label>Edit product name:</label><br>
+	<input name="edit_name" value="{{content[1]}}"><br>
+	<label>Edit product price:</label><br>
+	<input name="edit_price" value="{{content[3]}}" type="number"><br>
+	<label>Edit product description:</label><br>
+	<textarea  name="edit_description"></textarea><br>
+	<input type="submit"><br><br>
+	<a href="/product_controller/delete_product/{{content[0]}}">Delete product</a>
+</form>
+{% endblock %}

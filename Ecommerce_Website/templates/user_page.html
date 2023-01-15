@@ -1,0 +1,10 @@
+{% block content %}
+{% if content is not none %}
+{{content}}<br><br>
+<a href="/user_controller/update_user/{{content[0]}}">Edit user</a><br><br><br>
+<a href="/user_controller/delete_user/{{content[0]}}">DELETE USER</a>
+{% else %}
+	<p>User is not Found</p><br>
+	<a href="/">Homepage</a>
+{% endif %}
+{% endblock %}

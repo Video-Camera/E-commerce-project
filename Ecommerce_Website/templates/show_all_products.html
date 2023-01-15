@@ -1,0 +1,5 @@
+{% block content %}
+{% for product in content %}
+  <a href="/product_controller/update_product/{{product[0]}}">{{product[1]}}</a><br>
+{% endfor %}
+{% endblock %}

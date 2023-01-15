@@ -1,0 +1,7 @@
+{% block content %}
+{% for user in content %}
+	<p>First name: {{user[1]}}</p>
+	<p>Last name: {{user[2]}}</p>
+	<a href="/user_controller/user_page/{{user[0]}}">link to profile</a><br><br>
+{% endfor %}
+{% endblock %}

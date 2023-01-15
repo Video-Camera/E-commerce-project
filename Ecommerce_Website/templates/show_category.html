@@ -1,0 +1,9 @@
+<body style="text-align:center;">
+{% block content %}
+{{content[1]}}
+{{list_of_products|length}}<br>
+{% for product in list_of_products %}
+	{{product}}
+{% endfor %}
+{% endblock %}
+</body>

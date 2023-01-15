@@ -1,0 +1,8 @@
+{% block content %}
+{% for product in content %}
+	<form action="/product_controller/shop_all_products/add_product/{{product[0]}}" method="post">
+		<a href="/product_controller/show_product/{{product[0]}}">{{product[1]}}</a><br>
+		<input type="submit" value="Add to cart">
+	</form>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,5 @@
+{% block content %}
+{% for category in content %}
+  <a href="/product_controller/show_category/{{category[0]}}">{{category[1]}}</a><br><br>
+{% endfor %}
+{% endblock %}

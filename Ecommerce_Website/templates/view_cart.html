@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+<body>
+  {% for product in content %}
+    <p>{{product}}</p>
+  {% endfor %}<br>
+  <p>Price of items in cart: {{total_value}}</p>
+<form>
+	<input type="submit" value="Check out">
+
+</form>
+</body>
+</html>

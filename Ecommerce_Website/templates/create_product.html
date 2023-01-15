@@ -1,0 +1,18 @@
+{% block content %}
+{{content}}
+<form action="/product_controller/create_product/" method="post">
+	<label>Product name:</label>
+	<input name="product_name" type="text"><br>
+	<label>Product price:</label>
+	<input name="product_price" type="number"><br>
+	<label>Product description:</label>
+	<textarea name="product_description" rows="4" cols="50"></textarea><br>
+	<label>Select category for this item:</label>
+	<select name="category_name">
+		{% for category in content %}
+			<option value="{{category[0]}}">{{category[2]}}</option>
+		{% endfor %}
+	</select>
+	<input type="submit">
+</form>
+{% endblock %}
