@@ -6,10 +6,12 @@
 </head>
 <body>
   {% for product in content %}
-    <p>{{product}}</p>
+  	<form action="/product_controller/delete_item_from_cart/{{product[0]}}" method="post">
+    	<p>{{product}}</p><input type="submit" value="Delete item from cart">
+	</form>
   {% endfor %}<br>
-  <p>Price of items in cart: {{total_value}}</p>
-<form>
+  <p style="text-align:center;">Price of items in cart: {{total_value}}</p>
+<form style="text-align:center;" action="/product_controller/view_cart/" method="post">
 	<input type="submit" value="Check out">
 
 </form>

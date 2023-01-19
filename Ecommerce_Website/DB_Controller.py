@@ -8,8 +8,9 @@ def connect_to_db():
 
 sql_query = """CREATE TABLE IF NOT EXISTS user(
                id INTEGER PRIMARY KEY AUTOINCREMENT, 
-               first_name  TEXT NOT NULL, 
-               last_name  TEXT NOT NULL,
+               username  TEXT NOT NULL, 
+               password  TEXT NOT NULL,
+               email TEXT,
                balance  INTEGER);"""
 
 
@@ -46,6 +47,8 @@ sql_query5 = """CREATE TABLE IF NOT EXISTS orders(
                 FOREIGN KEY (order_user_id) REFERENCES user (id),
                 FOREIGN KEY (order_product_id) REFERENCES cart (cart_product_id)
                 );"""
+
+
 
 
 

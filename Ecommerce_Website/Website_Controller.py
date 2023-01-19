@@ -1,5 +1,5 @@
 from flask import Flask, request, redirect, url_for, render_template, make_response
-import sqlite3
+
 from DB_Controller import connect_to_db
 
 app = Flask(__name__)
@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def homepage():
-    return render_template('homepage.html')
+    return render_template('user_auth.html')
 
 
 @app.route('/user_controller/', methods=['GET'])
@@ -24,42 +24,49 @@ def create_new_user_get():
 def create_new_user_post():
     conn = connect_to_db()
     curr = conn.cursor()
-    first_name = request.form.get('first_name')
-    last_name = request.form.get('last_name')
-    sql = """INSERT INTO user (first_name, last_name) VALUES (?, ?)"""
-    curr.execute(sql, (first_name, last_name))
-    conn.commit()
-    sql_to_redirect = """SELECT * FROM user WHERE first_name = ? AND last_name = ?"""
-    curr.execute(sql_to_redirect, (first_name, last_name))
-    found_user = curr.fetchone()
-    conn.close()
-    return redirect(url_for("show_user_page", user_id=found_user[0]))
+    username = request.form.get('username')
+    password = request.form.get('password')
+    password_conformation = request.form.get('password_conformation')
+    if password == password_conformation:
+        sql = """INSERT INTO user (username, password) VALUES (?, ?)"""
+        curr.execute(sql, (username, password))
+        conn.commit()
+        sql_to_redirect = """SELECT * FROM user WHERE username = ? AND password = ?"""
+        curr.execute(sql_to_redirect, (username, password))
+        conn.close()
+        return redirect(url_for("log_in"))
+    else:
+        error_response = make_response(f'Invalid credentials')
+        return error_response
 
 
-@app.route("/user_controller/user_page/<int:user_id>", methods=['GET'])
-def show_user_page(user_id):
+@app.route("/user_controller/user_page/", methods=['GET'])
+def show_user_page():
     conn = connect_to_db()
     curr = conn.cursor()
+    user_id = request.cookies.get('userid')
     sql = """SELECT * FROM user WHERE id = ?"""
     curr.execute(sql, (user_id,))
     found_user = curr.fetchone()
     return render_template('user_page.html', content=found_user)
 
 
-@app.route('/user_controller/update_user/<int:user_id>', methods=['GET'])
-def edit_user_page_get(user_id):
+@app.route('/user_controller/update_user/', methods=['GET'])
+def edit_user_page_get():
     conn = connect_to_db()
     curr = conn.cursor()
+    user_id = request.cookies.get('userid')
     sql = """SELECT * FROM user WHERE id = ?"""
     curr.execute(sql, (user_id,))
     found_user = curr.fetchone()
     return render_template('edit_user.html', content=found_user)
 
 
-@app.route('/user_controller/update_user/<int:user_id>', methods=['POST'])
-def edit_user_page_post(user_id):
+@app.route('/user_controller/update_user/', methods=['POST'])
+def edit_user_page_post():
     conn = connect_to_db()
     curr = conn.cursor()
+    user_id = request.cookies.get('userid')
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
     balance = request.form.get('balance')
@@ -70,10 +77,11 @@ def edit_user_page_post(user_id):
     return redirect(url_for('show_user_page', user_id=user_id))
 
 
-@app.route('/user_controller/delete_user/<int:user_id>', methods=['GET', 'POST'])
-def delete_user_get(user_id):
+@app.route('/user_controller/delete_user/', methods=['GET', 'POST'])
+def delete_user_get():
     conn = connect_to_db()
     curr = conn.cursor()
+    user_id = request.cookies.get('userid')
     sql = """DELETE FROM user WHERE id = ?"""
     curr.execute(sql, (user_id,))
     conn.commit()
@@ -241,7 +249,6 @@ def shop_user_select_post():
 
 @app.route('/product_controller/shop_all_products/', methods=['GET'])
 def shop_all_products_get():
-    name = request.cookies.get('Name')
     conn = connect_to_db()
     curr = conn.cursor()
     sql = """SELECT * FROM product"""
@@ -310,7 +317,7 @@ def check_out():
     curr.execute(sql_user_search, (user_id, ))
     found_user = curr.fetchone()
     error_resp = make_response(f"Your balance is less than required!")
-    if found_user[3] < total_price_of_a_cart:
+    if found_user[3] is None or found_user[3] < total_price_of_a_cart:
         return error_resp
     elif found_user[3] > total_price_of_a_cart:
         balance_after_cart = found_user[3] - total_price_of_a_cart
@@ -318,6 +325,46 @@ def check_out():
         curr.execute(update_user_balance, (balance_after_cart, user_id))
         for item in list_of_products_in_cart:
             sql = """INSERT INTO orders (order_user_id, order_product_id, total_value) VALUES (?, ?, ?)"""
+            curr.execute(sql, (user_id, item[0], item[2]))
+            sql_to_delete_item_from_cart = """DELETE FROM cart WHERE cart_product_id = ?"""
+            curr.execute(sql_to_delete_item_from_cart, (item[0], ))
+
+        conn.commit()
+        conn.close()
+    return render_template('shop_main.html')
+
+
+@app.route('/product_controller/delete_item_from_cart/<int:item_id>', methods=['POST'])
+def delete_item_from_cart(item_id):
+    conn = connect_to_db()
+    curr = conn.cursor()
+    sql_query = """DELETE FROM cart WHERE cart_product_id = ?"""
+    curr.execute(sql_query, (item_id, ))
+    conn.commit()
+    return redirect(url_for('check_out'))
+
+
+@app.route('/login/', methods=["GET"])
+def log_in_get():
+    return render_template('user_auth.html')
+
+
+@app.route('/login/', methods=['POST'])
+def log_in():
+    conn = connect_to_db()
+    curr = conn.cursor()
+    requested_username = request.form.get('username')
+    requested_password = request.form.get('password')
+    sql_query_search_user = """SELECT * FROM user WHERE username = ? AND password = ?"""
+    curr.execute(sql_query_search_user, (requested_username, requested_password))
+    found_user = curr.fetchone()
+    if found_user:
+        resp = make_response(render_template('shop_main.html'))
+        resp.set_cookie('userid', f'{found_user[0]}')
+        return resp
+    else:
+        resp = make_response("User credentials don't match")
+        return resp
 
 
 if __name__ == "__main__":
